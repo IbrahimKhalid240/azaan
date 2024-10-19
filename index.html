@@ -1,43 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link
-      rel="stylesheet"
-      data-purpose="Layout StyleSheet"
-      title="Web Awesome"
-      href="/css/app-wa-3b124ff0e0d7a67cd8c995d0aeb1d15a.css?vsn=d"
-    >
-
-      <link
-        rel="stylesheet"
-        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/all.css"
-      >
-
-      <link
-        rel="stylesheet"
-        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-duotone-solid.css"
-      >
-
-      <link
-        rel="stylesheet"
-        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-thin.css"
-      >
-
-      <link
-        rel="stylesheet"
-        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-solid.css"
-      >
-
-      <link
-        rel="stylesheet"
-        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-regular.css"
-      >
-
-      <link
-        rel="stylesheet"
-        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-light.css"
-      >
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adhaan Scheduler</title>
@@ -46,7 +9,7 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin-top: 50px;
+            margin-top: 20px;
         }
         #status {
             margin-top: 20px;
@@ -74,10 +37,19 @@
             font-size: 16px;
             font-weight: bold;
         }
-        .comment{
-            color: green;
-            font-size: 25px;
-            margin-left: 30px;
+        .scrollable-row {
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .scrollable-row .col {
+            display: inline-block;
+            float: none;
+            width: auto;
+        }
+        .prayer-time-box {
+            display: inline-block;
+            min-width: 150px;
+            text-align: center;
         }
     </style>
 </head>
@@ -86,24 +58,25 @@
     <div class="current-date" id="currentDateDisplay"></div>
     
     <div class="container">
-        <div class="row justify-content-center">
-            <div id="fajrBox" class="col-2 prayer-time-box">
+        <!-- Make the row scrollable horizontally on small screens -->
+        <div class="row justify-content-center scrollable-row">
+            <div id="fajrBox" class="col prayer-time-box">
                 <h2>Fajr</h2>
                 <p id="fajrTime"></p>
             </div>
-            <div id="dhuhrBox" class="col-2 prayer-time-box">
+            <div id="dhuhrBox" class="col prayer-time-box">
                 <h2>Dhuhr</h2>
                 <p id="dhuhrTime"></p>
             </div>
-            <div id="asrBox" class="col-2 prayer-time-box">
+            <div id="asrBox" class="col prayer-time-box">
                 <h2>Asr</h2>
                 <p id="asrTime"></p>
             </div>
-            <div id="maghribBox" class="col-2 prayer-time-box">
+            <div id="maghribBox" class="col prayer-time-box">
                 <h2>Maghrib</h2>
                 <p id="maghribTime"></p>
             </div>
-            <div id="ishaBox" class="col-2 prayer-time-box">
+            <div id="ishaBox" class="col prayer-time-box">
                 <h2>Isha</h2>
                 <p id="ishaTime"></p>
             </div>
@@ -208,7 +181,5 @@
         setInterval(updatePrayerTimes, 86400000); // Update prayer times daily
 
     </script>
-<br><br><br><br><br>
-<span class="comment">Made with <i class="fa-solid fa-heart"></i> from United States </span>
 </body>
 </html>
