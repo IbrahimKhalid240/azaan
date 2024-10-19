@@ -1,9 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link
+      rel="stylesheet"
+      data-purpose="Layout StyleSheet"
+      title="Web Awesome"
+      href="/css/app-wa-3b124ff0e0d7a67cd8c995d0aeb1d15a.css?vsn=d"
+    >
+
+      <link
+        rel="stylesheet"
+        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/all.css"
+      >
+
+      <link
+        rel="stylesheet"
+        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-duotone-solid.css"
+      >
+
+      <link
+        rel="stylesheet"
+        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-thin.css"
+      >
+
+      <link
+        rel="stylesheet"
+        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-solid.css"
+      >
+
+      <link
+        rel="stylesheet"
+        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-regular.css"
+      >
+
+      <link
+        rel="stylesheet"
+        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-light.css"
+      >
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adhaan Scheduler</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,11 +53,63 @@
             font-size: 18px;
             color: green;
         }
+        .prayer-time-box {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .held {
+            color: green;
+            opacity: 1;
+            transition: opacity 2s ease-in-out;
+        }
+        .fade-out {
+            opacity: 0;
+        }
+        .current-date {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .comment{
+            color: green;
+            font-size: 25px;
+            margin-left: 30px;
+        }
     </style>
 </head>
 <body>
     <h1>Adhaan Scheduler</h1>
-    <p id="status"></p>
+    <div class="current-date" id="currentDateDisplay"></div>
+    
+    <div class="container">
+        <div class="row justify-content-center">
+            <div id="fajrBox" class="col-2 prayer-time-box">
+                <h2>Fajr</h2>
+                <p id="fajrTime"></p>
+            </div>
+            <div id="dhuhrBox" class="col-2 prayer-time-box">
+                <h2>Dhuhr</h2>
+                <p id="dhuhrTime"></p>
+            </div>
+            <div id="asrBox" class="col-2 prayer-time-box">
+                <h2>Asr</h2>
+                <p id="asrTime"></p>
+            </div>
+            <div id="maghribBox" class="col-2 prayer-time-box">
+                <h2>Maghrib</h2>
+                <p id="maghribTime"></p>
+            </div>
+            <div id="ishaBox" class="col-2 prayer-time-box">
+                <h2>Isha</h2>
+                <p id="ishaTime"></p>
+            </div>
+        </div>
+        <p id="status"></p>
+    </div>
     <audio id="adhaanSound" src="Azan.mp3"></audio> <!-- Replace with actual Adhaan sound file -->
 
     <script>
@@ -32,37 +122,61 @@
 
         // Prayer times for different dates (24-hour format)
         const prayerSchedule = {
-            "2024-10-15": { fajr: "05:49", dhuhr: "12:38", asr: "15:50", maghrib: "18:17", isha: "19:26" },
-            "2024-10-16": { fajr: "05:48", dhuhr: "12:38", asr: "15:49", maghrib: "18:18", isha: "19:25" },
-            "2024-10-17": { fajr: "05:50", dhuhr: "12:37", asr: "15:47", maghrib: "18:19", isha: "19:24" },
-            "2024-10-18": { fajr: "05:51", dhuhr: "12:37", asr: "15:46", maghrib: "18:20", isha: "19:23" },
-            "2024-10-19": { fajr: "05:52", dhuhr: "12:37", asr: "15:46", maghrib: "18:21", isha: "19:22" },
-            "2024-10-20": { fajr: "05:53", dhuhr: "12:37", asr: "15:44", maghrib: "18:22", isha: "19:21" },
-            "2024-10-21": { fajr: "05:54", dhuhr: "12:37", asr: "15:43", maghrib: "18:23", isha: "19:20" },
-            "2024-10-22": { fajr: "05:54", dhuhr: "12:38", asr: "15:42", maghrib: "18:24", isha: "19:19" },
-            "2024-10-23": { fajr: "05:55", dhuhr: "12:38", asr: "15:41", maghrib: "18:25", isha: "19:18" },
-            "2024-10-24": { fajr: "05:56", dhuhr: "12:38", asr: "15:41", maghrib: "18:26", isha: "19:17" },
-            "2024-10-25": { fajr: "05:57", dhuhr: "12:38", asr: "15:40", maghrib: "18:27", isha: "19:16" },
-            "2024-10-26": { fajr: "05:57", dhuhr: "12:38", asr: "15:39", maghrib: "18:28", isha: "19:15" },
-            "2024-10-27": { fajr: "05:58", dhuhr: "12:37", asr: "15:38", maghrib: "18:29", isha: "19:14" },
-            "2024-10-28": { fajr: "05:59", dhuhr: "12:37", asr: "15:38", maghrib: "18:30", isha: "19:13" },
-            "2024-10-29": { fajr: "06:00", dhuhr: "12:38", asr: "15:38", maghrib: "18:30", isha: "19:12" },
-            "2024-10-30": { fajr: "06:01", dhuhr: "12:38", asr: "15:38", maghrib: "18:31", isha: "19:11" },
-            "2024-10-31": { fajr: "06:03", dhuhr: "12:38", asr: "15:39", maghrib: "18:32", isha: "19:10" },
-            "2024-11-01": { fajr: "06:02", dhuhr: "12:38", asr: "15:39", maghrib: "18:32", isha: "19:09" },
-            "2024-11-02": { fajr: "06:03", dhuhr: "12:38", asr: "15:39", maghrib: "18:33", isha: "19:08" },
-            "2024-11-03": { fajr: "05:04", dhuhr: "12:38", asr: "15:40", maghrib: "18:34", isha: "19:07" },
-            "2024-11-04": { fajr: "05:05", dhuhr: "12:38", asr: "15:41", maghrib: "18:35", isha: "19:06" },
-            "2024-11-05": { fajr: "05:06", dhuhr: "12:38", asr: "15:42", maghrib: "18:36", isha: "19:05" },
-            "2024-11-06": { fajr: "05:07", dhuhr: "12:38", asr: "15:41", maghrib: "18:37", isha: "19:04" },
-            "2024-11-07": { fajr: "05:08", dhuhr: "12:38", asr: "15:41", maghrib: "18:38", isha: "19:03" },
-            "2024-11-08": { fajr: "05:09", dhuhr: "12:38", asr: "15:41", maghrib: "18:39", isha: "19:02" },
-            "2024-11-09": { fajr: "05:10", dhuhr: "12:38", asr: "15:40", maghrib: "18:40", isha: "19:01" },
-            "2024-11-10": { fajr: "05:11", dhuhr: "12:38", asr: "15:40", maghrib: "18:41", isha: "19:00" },
-            "2024-11-11": { fajr: "05:12", dhuhr: "12:38", asr: "15:40", maghrib: "18:42", isha: "18:59" },
+            "2024-10-15": { fajr: "05:49 AM", dhuhr: "12:38 PM", asr: "15:50", maghrib: "18:17", isha: "19:26" },
+            "2024-10-16": { fajr: "05:48 AM", dhuhr: "12:38 PM", asr: "15:49", maghrib: "18:18", isha: "19:25" },
+            "2024-10-17": { fajr: "05:50 AM", dhuhr: "12:37 PM", asr: "15:47", maghrib: "18:19", isha: "19:24" },
+            "2024-10-18": { fajr: "05:51 AM", dhuhr: "12:37 PM", asr: "15:46", maghrib: "18:20", isha: "19:23" },
+            "2024-10-19": { fajr: "05:52 AM", dhuhr: "12:37 PM", asr: "15:46", maghrib: "18:21", isha: "19:22" },
+            "2024-10-20": { fajr: "05:53 AM", dhuhr: "12:37 PM", asr: "15:44", maghrib: "18:22", isha: "19:21" },
+            "2024-10-21": { fajr: "05:54 AM", dhuhr: "12:37 PM", asr: "15:43", maghrib: "18:23", isha: "19:20" },
+            "2024-10-22": { fajr: "05:54 AM", dhuhr: "12:38 PM", asr: "15:42", maghrib: "18:24", isha: "19:19" },
+            "2024-10-23": { fajr: "05:55 AM", dhuhr: "12:38 PM", asr: "15:41", maghrib: "18:25", isha: "19:18" },
+            "2024-10-24": { fajr: "05:56 AM", dhuhr: "12:38 PM", asr: "15:41", maghrib: "18:26", isha: "19:17" },
+            "2024-10-25": { fajr: "05:57 AM", dhuhr: "12:38 PM", asr: "15:40", maghrib: "18:27", isha: "19:16" },
+            "2024-10-26": { fajr: "05:57AM", dhuhr: "12:38 PM", asr: "15:39", maghrib: "18:28", isha: "19:15" },
+            "2024-10-27": { fajr: "05:58 AM", dhuhr: "12:37 PM", asr: "15:38", maghrib: "18:29", isha: "19:14" },
+            "2024-10-28": { fajr: "05:59 AM", dhuhr: "12:37 PM", asr: "15:38", maghrib: "18:30", isha: "19:13" },
+            "2024-10-29": { fajr: "06:00 AM", dhuhr: "12:38 PM", asr: "15:38", maghrib: "18:30", isha: "19:12" },
+            "2024-10-30": { fajr: "06:01 AM", dhuhr: "12:38 PM", asr: "15:38", maghrib: "18:31", isha: "19:11" },
+            "2024-10-31": { fajr: "06:03 AM", dhuhr: "12:38 PM", asr: "15:39", maghrib: "18:32", isha: "19:10" },
+            "2024-11-01": { fajr: "06:02 AM", dhuhr: "12:38 PM", asr: "15:39", maghrib: "18:32", isha: "19:09" },
+            "2024-11-02": { fajr: "06:03 AM", dhuhr: "12:38 PM", asr: "15:39", maghrib: "18:33", isha: "19:08" },
+            "2024-11-03": { fajr: "05:04 AM", dhuhr: "12:38 PM", asr: "15:40", maghrib: "18:34", isha: "19:07" },
+            "2024-11-04": { fajr: "05:05 AM", dhuhr: "12:38 PM", asr: "15:41", maghrib: "18:35", isha: "19:06" },
+            "2024-11-05": { fajr: "05:06 AM", dhuhr: "12:38 PM", asr: "15:42", maghrib: "18:36", isha: "19:05" },
+            "2024-11-06": { fajr: "05:07 AM", dhuhr: "12:38 PM", asr: "15:41", maghrib: "18:37", isha: "19:04" },
+            "2024-11-07": { fajr: "05:08 AM", dhuhr: "12:38 PM", asr: "15:41", maghrib: "18:38", isha: "19:03" },
+            "2024-11-08": { fajr: "05:09 AM", dhuhr: "12:38 PM", asr: "15:41", maghrib: "18:39", isha: "19:02" },
+            "2024-11-09": { fajr: "05:10 AM", dhuhr: "12:38 PM", asr: "15:40", maghrib: "18:40", isha: "19:01" },
+            "2024-11-10": { fajr: "05:11 AM", dhuhr: "12:38 PM", asr: "15:40", maghrib: "18:41", isha: "19:00" },
+            "2024-11-11": { fajr: "05:12 AM", dhuhr: "12:38 PM", asr: "15:40", maghrib: "18:42", isha: "18:59" },
         };
 
-        // Function to check current date and time against prayer schedule
+        // Function to format the date and display in the desired format
+        function formatDateAndDay() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDate = now.toLocaleDateString('en-US', options);
+
+            document.getElementById("currentDateDisplay").innerText = `Today's Date: ${formattedDate}`;
+        }
+
+        // Function to check the current date and update prayer times
+        function updatePrayerTimes() {
+            const now = new Date();
+            const currentDate = now.toISOString().slice(0, 10); // Get YYYY-MM-DD format
+
+            if (prayerSchedule[currentDate]) {
+                const times = prayerSchedule[currentDate];
+                document.getElementById("fajrTime").innerText = times.fajr;
+                document.getElementById("dhuhrTime").innerText = times.dhuhr;
+                document.getElementById("asrTime").innerText = times.asr;
+                document.getElementById("maghribTime").innerText = times.maghrib;
+                document.getElementById("ishaTime").innerText = times.isha;
+            }
+        }
+
+        // Function to check current time and show "Prayer Time held" during prayer
         function checkTimeForAdhaan() {
             const now = new Date();
             const currentDate = now.toISOString().slice(0, 10); // Get YYYY-MM-DD format
@@ -72,14 +186,29 @@
 
             if (prayerSchedule[currentDate]) {
                 const times = prayerSchedule[currentDate];
-                if (currentTime === times.fajr || currentTime === times.dhuhr || currentTime === times.asr || currentTime === times.maghrib || currentTime === times.isha) {
-                    playAdhaan();
-                }
+
+                ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].forEach(prayer => {
+                    if (currentTime === times[prayer]) {
+                        playAdhaan();
+                        const prayerBox = document.getElementById(`${prayer}Box`);
+                        prayerBox.querySelector('p').innerText = `${times[prayer]} (Prayer Time held)`;
+                        prayerBox.classList.add('held');
+                        setTimeout(() => {
+                            prayerBox.classList.remove('held');
+                        }, 5000); // Fade out after 5 seconds
+                    }
+                });
             }
         }
 
-        // Run the time checker every minute
+        // Initialize
+        formatDateAndDay();  // Show the date and day in the header
+        updatePrayerTimes(); // Display the current day's prayer times
         setInterval(checkTimeForAdhaan, 60000); // Check every 60 seconds
+        setInterval(updatePrayerTimes, 86400000); // Update prayer times daily
+
     </script>
+<br><br><br><br><br>
+<span class="comment">Made with <i class="fa-solid fa-heart"></i> from United States </span>
 </body>
 </html>
