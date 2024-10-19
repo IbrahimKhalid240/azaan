@@ -31,15 +31,15 @@
             opacity: 0;
         }
         .current-date {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+            position: relative;
+            top: 40px; /* Moved down from the header */
             font-size: 16px;
             font-weight: bold;
         }
         .scrollable-row {
             overflow-x: auto;
             white-space: nowrap;
+            margin-top: 60px; /* Move the prayer time boxes down */
         }
         .scrollable-row .col {
             display: inline-block;
@@ -117,69 +117,50 @@
             "2024-11-03": { fajr: "05:04 AM", dhuhr: "12:38 PM", asr: "15:40", maghrib: "18:34", isha: "19:07" },
             "2024-11-04": { fajr: "05:05 AM", dhuhr: "12:38 PM", asr: "15:41", maghrib: "18:35", isha: "19:06" },
             "2024-11-05": { fajr: "05:06 AM", dhuhr: "12:38 PM", asr: "15:42", maghrib: "18:36", isha: "19:05" },
-            "2024-11-06": { fajr: "05:07 AM", dhuhr: "12:38 PM", asr: "15:41", maghrib: "18:37", isha: "19:04" },
-            "2024-11-07": { fajr: "05:08 AM", dhuhr: "12:38 PM", asr: "15:41", maghrib: "18:38", isha: "19:03" },
-            "2024-11-08": { fajr: "05:09 AM", dhuhr: "12:38 PM", asr: "15:41", maghrib: "18:39", isha: "19:02" },
-            "2024-11-09": { fajr: "05:10 AM", dhuhr: "12:38 PM", asr: "15:40", maghrib: "18:40", isha: "19:01" },
-            "2024-11-10": { fajr: "05:11 AM", dhuhr: "12:38 PM", asr: "15:40", maghrib: "18:41", isha: "19:00" },
-            "2024-11-11": { fajr: "05:12 AM", dhuhr: "12:38 PM", asr: "15:40", maghrib: "18:42", isha: "18:59" },
+            "2024-11-06": { fajr: "05:07 AM", dhuhr: "12:38 PM", asr: "15:41", maghrib: "18:37", isha: "19:04" }
         };
 
-        // Function to format the date and display in the desired format
-        function formatDateAndDay() {
-            const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const formattedDate = now.toLocaleDateString('en-US', options);
-
-            document.getElementById("currentDateDisplay").innerText = `Today's Date: ${formattedDate}`;
-        }
-
-        // Function to check the current date and update prayer times
+        // Function to update the prayer times on the page
         function updatePrayerTimes() {
-            const now = new Date();
-            const currentDate = now.toISOString().slice(0, 10); // Get YYYY-MM-DD format
+            const today = new Date().toISOString().slice(0, 10);
+            const prayerTimes = prayerSchedule[today];
 
-            if (prayerSchedule[currentDate]) {
-                const times = prayerSchedule[currentDate];
-                document.getElementById("fajrTime").innerText = times.fajr;
-                document.getElementById("dhuhrTime").innerText = times.dhuhr;
-                document.getElementById("asrTime").innerText = times.asr;
-                document.getElementById("maghribTime").innerText = times.maghrib;
-                document.getElementById("ishaTime").innerText = times.isha;
+            if (prayerTimes) {
+                document.getElementById("fajrTime").textContent = prayerTimes.fajr;
+                document.getElementById("dhuhrTime").textContent = prayerTimes.dhuhr;
+                document.getElementById("asrTime").textContent = prayerTimes.asr;
+                document.getElementById("maghribTime").textContent = prayerTimes.maghrib;
+                document.getElementById("ishaTime").textContent = prayerTimes.isha;
+            } else {
+                // If no prayer times are found for today, display 'N/A'
+                document.getElementById("fajrTime").textContent = "N/A";
+                document.getElementById("dhuhrTime").textContent = "N/A";
+                document.getElementById("asrTime").textContent = "N/A";
+                document.getElementById("maghribTime").textContent = "N/A";
+                document.getElementById("ishaTime").textContent = "N/A";
             }
         }
 
-        // Function to check current time and show "Prayer Time held" during prayer
-        function checkTimeForAdhaan() {
-            const now = new Date();
-            const currentDate = now.toISOString().slice(0, 10); // Get YYYY-MM-DD format
-            const currentHour = String(now.getHours()).padStart(2, '0');
-            const currentMinute = String(now.getMinutes()).padStart(2, '0');
-            const currentTime = `${currentHour}:${currentMinute}`;
-
-            if (prayerSchedule[currentDate]) {
-                const times = prayerSchedule[currentDate];
-
-                ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].forEach(prayer => {
-                    if (currentTime === times[prayer]) {
-                        playAdhaan();
-                        const prayerBox = document.getElementById(`${prayer}Box`);
-                        prayerBox.querySelector('p').innerText = `${times[prayer]} (Prayer Time held)`;
-                        prayerBox.classList.add('held');
-                        setTimeout(() => {
-                            prayerBox.classList.remove('held');
-                        }, 5000); // Fade out after 5 seconds
-                    }
-                });
-            }
+        // Function to update the current date display
+        function updateCurrentDate() {
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDate = today.toLocaleDateString(undefined, options);
+            document.getElementById("currentDateDisplay").textContent = formattedDate;
         }
 
-        // Initialize
-        formatDateAndDay();  // Show the date and day in the header
-        updatePrayerTimes(); // Display the current day's prayer times
-        setInterval(checkTimeForAdhaan, 60000); // Check every 60 seconds
-        setInterval(updatePrayerTimes, 86400000); // Update prayer times daily
+        // Function to apply fade in/out effect for prayer times
+        function applyFadeEffect(prayerId) {
+            const prayerBox = document.getElementById(prayerId);
+            prayerBox.classList.add("held");
+            setTimeout(() => {
+                prayerBox.classList.add("fade-out");
+            }, 5000); // Fade out after 5 seconds
+        }
 
+        // Initialize the page by updating the current date and prayer times
+        updateCurrentDate();
+        updatePrayerTimes();
     </script>
 </body>
 </html>
