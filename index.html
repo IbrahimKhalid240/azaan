@@ -7,141 +7,211 @@
       title="Web Awesome"
       href="/css/app-wa-3b124ff0e0d7a67cd8c995d0aeb1d15a.css?vsn=d"
     >
-
-      <link
-        rel="stylesheet"
-        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/all.css"
-      >
-
-      <link
-        rel="stylesheet"
-        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-duotone-solid.css"
-      >
-
-      <link
-        rel="stylesheet"
-        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-thin.css"
-      >
-
-      <link
-        rel="stylesheet"
-        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-solid.css"
-      >
-
-      <link
-        rel="stylesheet"
-        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-regular.css"
-      >
-
-      <link
-        rel="stylesheet"
-        href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-light.css"
-      >
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.6.0/css/all.css">
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-duotone-solid.css">
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-thin.css">
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-solid.css">
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-regular.css">
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-light.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adhaan Scheduler</title>
+    <title>Adhaan Scheduler Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin-top: 20px;
+            background-color: #f8f9fa;
         }
         #status {
-            margin-top: 20px;
+            margin-top: 15px;
             font-size: 18px;
-            color: green;
+            color: #28a745;
+            font-weight: bold;
+            height: 27px;
         }
         .prayer-time-box {
             margin: 10px;
-            padding: 20px;
+            padding: 25px 20px;
             border: 1px solid #ddd;
-            border-radius: 8px;
+            border-radius: 12px;
             display: inline-block;
-            min-width: 120px;
+            min-width: 140px;
             text-align: center;
-            transition: background-color 1s;
+            background-color: white;
+            transition: all 0.5s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        /* Highlight styling for the next upcoming prayer */
+        .upcoming-highlight {
+            border: 2px solid #28a745 !important;
+            transform: scale(1.05);
+            box-shadow: 0 8px 15px rgba(40, 167, 69, 0.2);
+            background-color: #f4fff6;
         }
         .fade-in-out {
             animation: fade-in-out 3s infinite;
         }
         @keyframes fade-in-out {
             0%, 100% { background-color: white; }
-            50% { background-color: green; }
+            50% { background-color: #28a745; color: white; }
+        }
+        .date-clock-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-align: right;
         }
         .current-date {
-            position: absolute;
-            top: 75px;
-            right: 20px;
             font-size: 16px;
             font-weight: bold;
+            color: #495057;
+        }
+        .hijri-date {
+            font-size: 14px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        .live-clock {
+            font-size: 24px;
+            font-weight: bold;
+            color: #212529;
+            margin-top: 5px;
         }
         .scrollable-row {
             overflow-x: auto;
             white-space: nowrap;
-            margin-top: 60px;
+            margin-top: 80px;
+            padding: 15px 0;
         }
         .upcoming-timer {
             font-weight: bold;
-            font-size: 18px;
+            font-size: 15px;
+            color: #6c757d;
+            margin-top: 10px;
         }
-        .comment{
+        .upcoming-highlight .upcoming-timer {
+            color: #28a745;
+        }
+        /* Media controls UI panel */
+        .audio-controls {
+            margin-top: 30px;
+            background: white;
+            padding: 15px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+        .comment {
             color: black;
             font-family: Verdana, Geneva, Tahoma, sans-serif;
-            margin-top: 100px;
+            margin-top: 60px;
             display: inline-block;
             font-size: 24px;
         }
-        .color{
+        .color {
             color: red;
         }
-
     </style>
 </head>
 <body>
-    <h1>Adhaan Scheduler</h1>
-    <div class="current-date" id="currentDateDisplay"></div>
+    <div class="text-start ms-4">
+        <h1>Adhaan Scheduler</h1>
+    </div>
+    
+    <div class="date-clock-container">
+        <div class="current-date" id="currentDateDisplay"></div>
+        <div class="hijri-date" id="hijriDateDisplay"></div>
+        <div class="live-clock" id="liveClockDisplay">00:00:00 AM</div>
+    </div>
     
     <div class="container">
         <div class="row justify-content-center scrollable-row">
             <div id="fajrBox" class="col prayer-time-box">
                 <h2>Fajr الفجر</h2>
-                <p id="fajrTime"></p>
-                <p class="upcoming-timer" id="fajrTimer"></p>
+                <p id="fajrTime">-</p>
+                <div class="upcoming-timer" id="fajrTimer">--:--:--</div>
             </div>
             <div id="dhuhrBox" class="col prayer-time-box">
                 <h2>Dhuhr الظهر</h2>
-                <p id="dhuhrTime"></p>
-                <p class="upcoming-timer" id="dhuhrTimer"></p>
+                <p id="dhuhrTime">-</p>
+                <div class="upcoming-timer" id="dhuhrTimer">--:--:--</div>
             </div>
             <div id="asrBox" class="col prayer-time-box">
                 <h2>Asr العصر</h2>
-                <p id="asrTime"></p>
-                <p class="upcoming-timer" id="asrTimer"></p>
+                <p id="asrTime">-</p>
+                <div class="upcoming-timer" id="asrTimer">--:--:--</div>
             </div>
             <div id="maghribBox" class="col prayer-time-box">
                 <h2>Maghrib المغرب</h2>
-                <p id="maghribTime"></p>
-                <p class="upcoming-timer" id="maghribTimer"></p>
+                <p id="maghribTime">-</p>
+                <div class="upcoming-timer" id="maghribTimer">--:--:--</div>
             </div>
             <div id="ishaBox" class="col prayer-time-box">
                 <h2>Isha العشاء</h2>
-                <p id="ishaTime"></p>
-                <p class="upcoming-timer" id="ishaTimer"></p>
+                <p id="ishaTime">-</p>
+                <div class="upcoming-timer" id="ishaTimer">--:--:--</div>
             </div>
         </div>
+
         <p id="status"></p>
+
+        <div class="audio-controls">
+            <button class="btn btn-sm btn-outline-success" onclick="playAdhaan()">Test Audio</button>
+            <button class="btn btn-sm btn-danger" onclick="stopAdhaan()">Stop / Mute Adhaan</button>
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-volume-high text-secondary"></i>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.8" style="width: 100px;">
+            </div>
+        </div>
     </div>
+    
     <audio id="adhaanSound" src="Azan.mp3"></audio>
 
     <script>
-        let adhaanTimeout;
+        const prayerSchedule = {
+            "2026-07-16": { fajr: "04:31 AM", dhuhr: "12:58 PM", asr: "04:43 PM", maghrib: "08:03 PM", isha: "09:25 PM" },
+            "2026-07-17": { fajr: "04:32 AM", dhuhr: "12:58 PM", asr: "04:43 PM", maghrib: "08:03 PM", isha: "09:24 PM" },
+            "2026-07-18": { fajr: "04:33 AM", dhuhr: "12:58 PM", asr: "04:43 PM", maghrib: "08:02 PM", isha: "09:23 PM" },
+            "2026-07-19": { fajr: "04:34 AM", dhuhr: "12:58 PM", asr: "04:43 PM", maghrib: "08:02 PM", isha: "09:22 PM" },
+            "2026-07-20": { fajr: "04:35 AM", dhuhr: "12:59 PM", asr: "04:43 PM", maghrib: "08:01 PM", isha: "09:22 PM" },
+            "2026-07-21": { fajr: "04:36 AM", dhuhr: "12:59 PM", asr: "04:43 PM", maghrib: "08:01 PM", isha: "09:21 PM" },
+            "2026-07-22": { fajr: "04:37 AM", dhuhr: "12:59 PM", asr: "04:43 PM", maghrib: "08:00 PM", isha: "09:20 PM" },
+            "2026-07-23": { fajr: "04:38 AM", dhuhr: "12:59 PM", asr: "04:43 PM", maghrib: "07:59 PM", isha: "09:19 PM" },
+            "2026-07-24": { fajr: "04:38 AM", dhuhr: "12:59 PM", asr: "04:43 PM", maghrib: "07:59 PM", isha: "09:18 PM" },
+            "2026-07-25": { fajr: "04:39 AM", dhuhr: "12:59 PM", asr: "04:43 PM", maghrib: "07:58 PM", isha: "09:17 PM" },
+            "2026-07-26": { fajr: "04:40 AM", dhuhr: "12:59 PM", asr: "04:43 PM", maghrib: "07:57 PM", isha: "09:16 PM" },
+            "2026-07-27": { fajr: "04:41 AM", dhuhr: "12:59 PM", asr: "04:43 PM", maghrib: "07:57 PM", isha: "09:15 PM" },
+            "2026-07-28": { fajr: "04:42 AM", dhuhr: "12:59 PM", asr: "04:43 PM", maghrib: "07:56 PM", isha: "09:14 PM" },
+            "2026-07-29": { fajr: "04:43 AM", dhuhr: "12:59 PM", asr: "04:43 PM", maghrib: "07:55 PM", isha: "09:13 PM" },
+            "2026-07-30": { fajr: "04:44 AM", dhuhr: "12:59 PM", asr: "04:42 PM", maghrib: "07:54 PM", isha: "09:12 PM" },
+            "2026-07-31": { fajr: "04:45 AM", dhuhr: "12:59 PM", asr: "04:42 PM", maghrib: "07:54 PM", isha: "09:11 PM" },
+            "2026-08-01": { fajr: "04:46 AM", dhuhr: "12:58 PM", asr: "04:42 PM", maghrib: "07:53 PM", isha: "09:10 PM" },
+            "2026-08-02": { fajr: "04:47 AM", dhuhr: "12:58 PM", asr: "04:42 PM", maghrib: "07:52 PM", isha: "09:09 PM" },
+            "2026-08-03": { fajr: "04:48 AM", dhuhr: "12:58 PM", asr: "04:42 PM", maghrib: "07:51 PM", isha: "09:08 PM" },
+            "2026-08-04": { fajr: "04:49 AM", dhuhr: "12:58 PM", asr: "04:41 PM", maghrib: "07:50 PM", isha: "09:07 PM" },
+            "2026-08-05": { fajr: "04:50 AM", dhuhr: "12:58 PM", asr: "04:41 PM", maghrib: "07:49 PM", isha: "09:06 PM" },
+            "2026-08-06": { fajr: "04:51 AM", dhuhr: "12:58 PM", asr: "04:41 PM", maghrib: "07:48 PM", isha: "09:04 PM" },
+            "2026-08-07": { fajr: "04:52 AM", dhuhr: "12:58 PM", asr: "04:41 PM", maghrib: "07:47 PM", isha: "09:03 PM" },
+            "2026-08-08": { fajr: "04:53 AM", dhuhr: "12:58 PM", asr: "04:40 PM", maghrib: "07:46 PM", isha: "09:02 PM" },
+            "2026-08-09": { fajr: "04:54 AM", dhuhr: "12:58 PM", asr: "04:40 PM", maghrib: "07:45 PM", isha: "09:01 PM" },
+            "2026-08-10": { fajr: "04:55 AM", dhuhr: "12:58 PM", asr: "04:40 PM", maghrib: "07:44 PM", isha: "08:59 PM" },
+            "2026-08-11": { fajr: "04:56 AM", dhuhr: "12:57 PM", asr: "04:39 PM", maghrib: "07:43 PM", isha: "08:58 PM" },
+            "2026-08-12": { fajr: "04:57 AM", dhuhr: "12:57 PM", asr: "04:39 PM", maghrib: "07:42 PM", isha: "08:57 PM" },
+            "2026-08-13": { fajr: "04:58 AM", dhuhr: "12:57 PM", asr: "04:39 PM", maghrib: "07:41 PM", isha: "08:55 PM" },
+            "2026-08-14": { fajr: "04:59 AM", dhuhr: "12:57 PM", asr: "04:38 PM", maghrib: "07:40 PM", isha: "08:54 PM" }
+        };
+
+        const prayersList = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
 
         function playAdhaan() {
             const audio = document.getElementById("adhaanSound");
             audio.currentTime = 0;
             audio.play();
-            document.getElementById("status").innerText = "Adhaan is playing!";
+            document.getElementById("status").innerText = "🕌 Adhaan is playing...";
             audio.onended = function() {
                 document.getElementById("status").innerText = "";
             };
@@ -154,101 +224,86 @@
             document.getElementById("status").innerText = "";
         }
 
-        const prayerSchedule = {
-    "2024-11-26": { fajr: "05:22 AM", dhuhr: "12:10 PM", asr: "03:15 PM", maghrib: "05:10 PM", isha: "06:32 PM" },
-    "2024-11-27": { fajr: "05:23 AM", dhuhr: "12:10 PM", asr: "03:15 PM", maghrib: "05:10 PM", isha: "06:32 PM" },
-    "2024-11-28": { fajr: "05:24 AM", dhuhr: "12:10 PM", asr: "03:16 PM", maghrib: "05:09 PM", isha: "06:31 PM" },
-    "2024-11-29": { fajr: "05:24 AM", dhuhr: "12:11 PM", asr: "03:16 PM", maghrib: "05:09 PM", isha: "06:31 PM" },
-    "2024-11-30": { fajr: "05:25 AM", dhuhr: "12:11 PM", asr: "03:16 PM", maghrib: "05:09 PM", isha: "06:31 PM" },
-    "2024-12-01": { fajr: "05:26 AM", dhuhr: "12:12 PM", asr: "03:17 PM", maghrib: "05:09 PM", isha: "06:31 PM" },
-    "2024-12-02": { fajr: "05:26 AM", dhuhr: "12:12 PM", asr: "03:17 PM", maghrib: "05:09 PM", isha: "06:31 PM" },
-    "2024-12-03": { fajr: "05:27 AM", dhuhr: "12:13 PM", asr: "03:17 PM", maghrib: "05:09 PM", isha: "06:31 PM" },
-    "2024-12-04": { fajr: "05:28 AM", dhuhr: "12:13 PM", asr: "03:18 PM", maghrib: "05:09 PM", isha: "06:31 PM" },
-    "2024-12-05": { fajr: "05:29 AM", dhuhr: "12:14 PM", asr: "03:18 PM", maghrib: "05:10 PM", isha: "06:32 PM" },
-    "2024-12-06": { fajr: "05:29 AM", dhuhr: "12:14 PM", asr: "03:18 PM", maghrib: "05:10 PM", isha: "06:32 PM" },
-    "2024-12-07": { fajr: "05:30 AM", dhuhr: "12:15 PM", asr: "03:19 PM", maghrib: "05:10 PM", isha: "06:32 PM" },
-    "2024-12-08": { fajr: "05:30 AM", dhuhr: "12:15 PM", asr: "03:19 PM", maghrib: "05:11 PM", isha: "06:33 PM" },
-    "2024-12-09": { fajr: "05:31 AM", dhuhr: "12:16 PM", asr: "03:19 PM", maghrib: "05:11 PM", isha: "06:33 PM" },
-    "2024-12-10": { fajr: "05:32 AM", dhuhr: "12:16 PM", asr: "03:20 PM", maghrib: "05:12 PM", isha: "06:33 PM" },
-    "2024-12-11": { fajr: "05:32 AM", dhuhr: "12:17 PM", asr: "03:20 PM", maghrib: "05:12 PM", isha: "06:34 PM" },
-    "2024-12-12": { fajr: "05:33 AM", dhuhr: "12:17 PM", asr: "03:21 PM", maghrib: "05:13 PM", isha: "06:34 PM" },
-    "2024-12-13": { fajr: "05:34 AM", dhuhr: "12:18 PM", asr: "03:21 PM", maghrib: "05:13 PM", isha: "06:34 PM" },
-    "2024-12-14": { fajr: "05:34 AM", dhuhr: "12:18 PM", asr: "03:22 PM", maghrib: "05:14 PM", isha: "06:35 PM" },
-    "2024-12-15": { fajr: "05:35 AM", dhuhr: "12:19 PM", asr: "03:22 PM", maghrib: "05:14 PM", isha: "06:35 PM" },
-    "2024-12-16": { fajr: "05:35 AM", dhuhr: "12:19 PM", asr: "03:23 PM", maghrib: "05:15 PM", isha: "06:35 PM" },
-    "2024-12-17": { fajr: "05:36 AM", dhuhr: "12:20 PM", asr: "03:23 PM", maghrib: "05:16 PM", isha: "06:36 PM" },
-    "2024-12-18": { fajr: "05:37 AM", dhuhr: "12:20 PM", asr: "03:24 PM", maghrib: "05:16 PM", isha: "06:36 PM" },
-    "2024-12-19": { fajr: "05:37 AM", dhuhr: "12:21 PM", asr: "03:24 PM", maghrib: "05:17 PM", isha: "06:37 PM" },
-    "2024-12-20": { fajr: "05:38 AM", dhuhr: "12:21 PM", asr: "03:25 PM", maghrib: "05:17 PM", isha: "06:37 PM" },
-    "2024-12-21": { fajr: "05:39 AM", dhuhr: "12:22 PM", asr: "03:25 PM", maghrib: "05:18 PM", isha: "06:37 PM" },
-    "2024-12-22": { fajr: "05:39 AM", dhuhr: "12:22 PM", asr: "03:26 PM", maghrib: "05:18 PM", isha: "06:38 PM" },
-    "2024-12-23": { fajr: "05:40 AM", dhuhr: "12:23 PM", asr: "03:26 PM", maghrib: "05:19 PM", isha: "06:38 PM" },
-    "2024-12-24": { fajr: "05:41 AM", dhuhr: "12:23 PM", asr: "03:27 PM", maghrib: "05:19 PM", isha: "06:38 PM" }
-};
+        // Live Ticking Clock and Loop Engine
+        function startLiveClockAndTimers() {
+            setInterval(() => {
+                const now = new Date();
+                
+                // Update live clock UI
+                document.getElementById("liveClockDisplay").innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+                
+                // Engine updates
+                const todayStr = getCurrentDate();
+                const todaySchedule = prayerSchedule[todayStr];
 
+                if (todaySchedule) {
+                    // Populate initial visual static times
+                    prayersList.forEach(p => {
+                        document.getElementById(`${p}Time`).innerText = todaySchedule[p];
+                    });
 
-        function updatePrayerTimes() {
-            const today = getCurrentDate();
-            const todaySchedule = prayerSchedule[today];
-            
-            if (todaySchedule) {
-                document.getElementById("fajrTime").innerText = todaySchedule.fajr;
-                document.getElementById("dhuhrTime").innerText = todaySchedule.dhuhr;
-                document.getElementById("asrTime").innerText = todaySchedule.asr;
-                document.getElementById("maghribTime").innerText = todaySchedule.maghrib;
-                document.getElementById("ishaTime").innerText = todaySchedule.isha;
-
-                startUpcomingTimers(todaySchedule);
-            } else {
-                document.getElementById("status").innerText = "No prayer timings found for today.";
-            }
+                    updateCountdownsAndHighlights(todaySchedule, now);
+                } else {
+                    document.getElementById("status").innerText = "No prayer timings found for today.";
+                }
+            }, 1000);
         }
 
-        function startUpcomingTimers(todaySchedule) {
-            const prayers = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
-            prayers.forEach(prayer => {
-                const prayerTime = todaySchedule[prayer];
-                const timerElement = document.getElementById(prayer + "Timer");
-                countdownTimer(prayerTime, prayer, timerElement);
-            });
-        }
+        function updateCountdownsAndHighlights(schedule, now) {
+            let nextPrayerFound = false;
 
-        function countdownTimer(prayerTime, prayerType, timerElement) {
-            const currentTime = new Date();
-            const prayerDateTime = new Date(currentTime.toDateString() + ' ' + prayerTime); 
+            prayersList.forEach(prayer => {
+                const pBox = document.getElementById(`${prayer}Box`);
+                const pTimer = document.getElementById(`${prayer}Timer`);
+                
+                const prayerTimeParts = schedule[prayer];
+                const prayerDateTime = new Date(now.toDateString() + ' ' + prayerTimeParts);
 
-            if (currentTime < prayerDateTime && (prayerDateTime - currentTime) <= 15 * 60 * 1000) {
-                const interval = setInterval(() => {
-                    const timeDiff = prayerDateTime - new Date();
+                // Strip the boxes of previous highlighting highlights
+                pBox.classList.remove("upcoming-highlight");
+
+                const timeDiff = prayerDateTime - now;
+
+                if (timeDiff > 0) {
+                    // This is an upcoming prayer today
+                    const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);
                     const minutes = Math.floor((timeDiff / (1000 * 60)) % 60);
                     const seconds = Math.floor((timeDiff / 1000) % 60);
+                    
+                    pTimer.innerText = `In ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-                    if (timeDiff > 0) {
-                        timerElement.innerText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                    } else {
-                        clearInterval(interval);
-                        timerElement.innerText = "It's time to pray";
-                        playAdhaan();
-                        triggerFadeEffect(prayerType);
+                    // First structural future time match becomes highlighted next target
+                    if (!nextPrayerFound) {
+                        pBox.classList.add("upcoming-highlight");
+                        nextPrayerFound = true;
                     }
-                }, 1000);
-            } else if (currentTime >= prayerDateTime) {
-                // If current time is already past the prayer time, ensure no timer or effect is shown
-                timerElement.innerText = "";
+
+                    // Exact prompt match trigger (Adhaan activation logic boundary check)
+                    if (timeDiff <= 1000 && timeDiff > 0) { 
+                        pTimer.innerText = "It's time to pray";
+                        playAdhaan();
+                        triggerFadeEffect(prayer);
+                    }
+
+                } else {
+                    // Time context has already elapsed
+                    pTimer.innerText = "Passed";
+                }
+            });
+
+            // If all prayers passed today, highlight Tomorrow's Fajr implicitly
+            if (!nextPrayerFound) {
+                document.getElementById("fajrBox").classList.add("upcoming-highlight");
+                document.getElementById("fajrTimer").innerText = "Next: Tomorrow Fajr";
             }
         }
 
         function triggerFadeEffect(prayerType) {
             const prayerBox = document.getElementById(prayerType + "Box");
             prayerBox.classList.add("fade-in-out");
-
-            // Stop the fade effect after 10 minutes
             setTimeout(() => {
                 prayerBox.classList.remove("fade-in-out");
-                if (prayerType === "isha") {
-                    stopAdhaan();
-                }
-            }, 10 * 60 * 1000); // 10 minutes
+            }, 10 * 60 * 1000); // 10 minutes fade lifecycle boundary
         }
 
         function getCurrentDate() {
@@ -264,22 +319,34 @@
             const year = currentDate.getFullYear();
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             const day = currentDate.getDate();
-            const suffix = (day % 10 === 1 && day !== 11) ? 'st' : 
-                           (day % 10 === 2 && day !== 12) ? 'nd' : 
+            const suffix = (day % 10 === 1 && day !== 11) ? 'st' :
+                           (day % 10 === 2 && day !== 12) ? 'nd' :
                            (day % 10 === 3 && day !== 13) ? 'rd' : 'th';
-            const formattedDate = `${day}${suffix} ${monthNames[currentDate.getMonth()]} ${year}`;
-            document.getElementById("currentDateDisplay").innerText = formattedDate;
+            document.getElementById("currentDateDisplay").innerText = `${day}${suffix} ${monthNames[currentDate.getMonth()]} ${year}`;
+            
+            // Simplified Dynamic Calculated Hijri Display Estimation
+            const hijriOption = { day: 'numeric', month: 'long', year: 'numeric' };
+            const hijriDate = new Intl.DateTimeFormat('en-TN-u-ca-islamic', hijriOption).format(currentDate);
+            document.getElementById("hijriDateDisplay").innerText = hijriDate;
         }
 
         function initialize() {
             displayCurrentDate();
-            updatePrayerTimes();
+            startLiveClockAndTimers();
+
+            // Setup volume control events dynamically
+            const audio = document.getElementById("adhaanSound");
+            const slider = document.getElementById("volumeSlider");
+            slider.addEventListener('input', (e) => {
+                audio.volume = e.target.value;
+            });
+
             window.addEventListener("beforeunload", stopAdhaan);
         }
 
         window.onload = initialize;
     </script>
-     <span class="comment">Made with <span class="color"><i class="fa-solid fa-heart"></i></span> from United States </span>
-
+    <br>
+    <span class="comment">Made with <span class="color"><i class="fa-solid fa-heart"></i></span> from United States </span>
 </body>
 </html>
