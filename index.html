@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-light.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adhaan Scheduler Pro</title>
+    <title>Adhaan Scheduler Persistent Visual Edition</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -23,13 +23,6 @@
             text-align: center;
             margin-top: 20px;
             background-color: #f8f9fa;
-        }
-        #status {
-            margin-top: 15px;
-            font-size: 18px;
-            color: #28a745;
-            font-weight: bold;
-            height: 27px;
         }
         .prayer-time-box {
             margin: 10px;
@@ -43,19 +36,11 @@
             transition: all 0.5s ease;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        /* Highlight styling for the next upcoming prayer */
         .upcoming-highlight {
             border: 2px solid #28a745 !important;
             transform: scale(1.05);
             box-shadow: 0 8px 15px rgba(40, 167, 69, 0.2);
             background-color: #f4fff6;
-        }
-        .fade-in-out {
-            animation: fade-in-out 3s infinite;
-        }
-        @keyframes fade-in-out {
-            0%, 100% { background-color: white; }
-            50% { background-color: #28a745; color: white; }
         }
         .date-clock-container {
             position: absolute;
@@ -94,17 +79,41 @@
         .upcoming-highlight .upcoming-timer {
             color: #28a745;
         }
-        /* Media controls UI panel */
-        .audio-controls {
-            margin-top: 30px;
-            background: white;
-            padding: 15px;
-            border-radius: 30px;
-            display: inline-flex;
+
+        /* Persistent Full Screen Visual Alert Overlay */
+        #visualAlertOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(40, 167, 69, 0.98);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            gap: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1);
         }
+        #visualAlertOverlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .alert-title {
+            font-size: 4.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .alert-subtitle {
+            font-size: 2.2rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
         .comment {
             color: black;
             font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -118,6 +127,12 @@
     </style>
 </head>
 <body>
+    <div id="visualAlertOverlay">
+        <div class="alert-title">🕌 حی علی الصلاة</div>
+        <div class="alert-subtitle" id="alertPrayerName">It's Time to Pray!</div>
+        <button class="btn btn-light btn-lg px-5 py-3 fw-bold text-success shadow-lg rounded-pill" onclick="dismissVisualAlert()">Dismiss / Clear Alert</button>
+    </div>
+
     <div class="text-start ms-4">
         <h1>Adhaan Scheduler</h1>
     </div>
@@ -157,19 +172,10 @@
             </div>
         </div>
 
-        <p id="status"></p>
-
-        <div class="audio-controls">
-            <button class="btn btn-sm btn-outline-success" onclick="playAdhaan()">Test Audio</button>
-            <button class="btn btn-sm btn-danger" onclick="stopAdhaan()">Stop / Mute Adhaan</button>
-            <div class="d-flex align-items-center gap-2">
-                <i class="fa-solid fa-volume-high text-secondary"></i>
-                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.8" style="width: 100px;">
-            </div>
+        <div class="mt-4">
+            <button class="btn btn-outline-success btn-sm px-4" onclick="triggerVisualAlert('Dhuhr')">Test Match Alert Template</button>
         </div>
     </div>
-    
-    <audio id="adhaanSound" src="Azan.mp3"></audio>
 
     <script>
         const prayerSchedule = {
@@ -206,104 +212,86 @@
         };
 
         const prayersList = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
+        let triggeredPrayersThisMinute = {};
 
-        function playAdhaan() {
-            const audio = document.getElementById("adhaanSound");
-            audio.currentTime = 0;
-            audio.play();
-            document.getElementById("status").innerText = "🕌 Adhaan is playing...";
-            audio.onended = function() {
-                document.getElementById("status").innerText = "";
-            };
+        function triggerVisualAlert(prayerName) {
+            const overlay = document.getElementById("visualAlertOverlay");
+            document.getElementById("alertPrayerName").innerText = `It's Time for ${prayerName.toUpperCase()}!`;
+            overlay.classList.add("active");
         }
 
-        function stopAdhaan() {
-            const audio = document.getElementById("adhaanSound");
-            audio.pause();
-            audio.currentTime = 0; 
-            document.getElementById("status").innerText = "";
+        function dismissVisualAlert() {
+            const overlay = document.getElementById("visualAlertOverlay");
+            overlay.classList.remove("active");
         }
 
-        // Live Ticking Clock and Loop Engine
         function startLiveClockAndTimers() {
             setInterval(() => {
                 const now = new Date();
+                const currentMinutesStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 
-                // Update live clock UI
+                // Update ticking clock display
                 document.getElementById("liveClockDisplay").innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
                 
-                // Engine updates
                 const todayStr = getCurrentDate();
                 const todaySchedule = prayerSchedule[todayStr];
 
                 if (todaySchedule) {
-                    // Populate initial visual static times
                     prayersList.forEach(p => {
                         document.getElementById(`${p}Time`).innerText = todaySchedule[p];
                     });
 
-                    updateCountdownsAndHighlights(todaySchedule, now);
-                } else {
-                    document.getElementById("status").innerText = "No prayer timings found for today.";
+                    updateCountdownsAndHighlights(todaySchedule, now, currentMinutesStr);
                 }
             }, 1000);
         }
 
-        function updateCountdownsAndHighlights(schedule, now) {
+        function updateCountdownsAndHighlights(schedule, now, currentMinutesStr) {
             let nextPrayerFound = false;
 
             prayersList.forEach(prayer => {
                 const pBox = document.getElementById(`${prayer}Box`);
                 const pTimer = document.getElementById(`${prayer}Timer`);
                 
-                const prayerTimeParts = schedule[prayer];
-                const prayerDateTime = new Date(now.toDateString() + ' ' + prayerTimeParts);
+                const prayerTimeStr = schedule[prayer];
+                const prayerDateTime = new Date(now.toDateString() + ' ' + prayerTimeStr);
 
-                // Strip the boxes of previous highlighting highlights
                 pBox.classList.remove("upcoming-highlight");
-
                 const timeDiff = prayerDateTime - now;
 
+                // Automated Visual Alert Trigger check on the exact minute boundary match
+                const standardizedPrayerStr = prayerDateTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                if (currentMinutesStr === standardizedPrayerStr) {
+                    if (!triggeredPrayersThisMinute[prayer]) {
+                        triggeredPrayersThisMinute[prayer] = true;
+                        triggerVisualAlert(prayer);
+                    }
+                }
+
                 if (timeDiff > 0) {
-                    // This is an upcoming prayer today
                     const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);
                     const minutes = Math.floor((timeDiff / (1000 * 60)) % 60);
                     const seconds = Math.floor((timeDiff / 1000) % 60);
                     
                     pTimer.innerText = `In ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-                    // First structural future time match becomes highlighted next target
                     if (!nextPrayerFound) {
                         pBox.classList.add("upcoming-highlight");
                         nextPrayerFound = true;
                     }
-
-                    // Exact prompt match trigger (Adhaan activation logic boundary check)
-                    if (timeDiff <= 1000 && timeDiff > 0) { 
-                        pTimer.innerText = "It's time to pray";
-                        playAdhaan();
-                        triggerFadeEffect(prayer);
-                    }
-
                 } else {
-                    // Time context has already elapsed
                     pTimer.innerText = "Passed";
+                    // Reset day protection tracking lock safely once minute rolls completely away
+                    if (timeDiff < -60000 && triggeredPrayersThisMinute[prayer]) {
+                        delete triggeredPrayersThisMinute[prayer];
+                    }
                 }
             });
 
-            // If all prayers passed today, highlight Tomorrow's Fajr implicitly
             if (!nextPrayerFound) {
                 document.getElementById("fajrBox").classList.add("upcoming-highlight");
                 document.getElementById("fajrTimer").innerText = "Next: Tomorrow Fajr";
             }
-        }
-
-        function triggerFadeEffect(prayerType) {
-            const prayerBox = document.getElementById(prayerType + "Box");
-            prayerBox.classList.add("fade-in-out");
-            setTimeout(() => {
-                prayerBox.classList.remove("fade-in-out");
-            }, 10 * 60 * 1000); // 10 minutes fade lifecycle boundary
         }
 
         function getCurrentDate() {
@@ -324,7 +312,6 @@
                            (day % 10 === 3 && day !== 13) ? 'rd' : 'th';
             document.getElementById("currentDateDisplay").innerText = `${day}${suffix} ${monthNames[currentDate.getMonth()]} ${year}`;
             
-            // Simplified Dynamic Calculated Hijri Display Estimation
             const hijriOption = { day: 'numeric', month: 'long', year: 'numeric' };
             const hijriDate = new Intl.DateTimeFormat('en-TN-u-ca-islamic', hijriOption).format(currentDate);
             document.getElementById("hijriDateDisplay").innerText = hijriDate;
@@ -333,15 +320,6 @@
         function initialize() {
             displayCurrentDate();
             startLiveClockAndTimers();
-
-            // Setup volume control events dynamically
-            const audio = document.getElementById("adhaanSound");
-            const slider = document.getElementById("volumeSlider");
-            slider.addEventListener('input', (e) => {
-                audio.volume = e.target.value;
-            });
-
-            window.addEventListener("beforeunload", stopAdhaan);
         }
 
         window.onload = initialize;
