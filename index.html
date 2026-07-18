@@ -377,49 +377,44 @@
         }
 
         function displayCurrentDate() {
-            const currentDate = new Date();
-            const year = currentDate.getFullYear();
-            const monthIdx = currentDate.getMonth(); // 0-11
-            const day = currentDate.getDate();
-            
-            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            const suffix = (day % 10 === 1 && day !== 11) ? 'st' :
-                           (day % 10 === 2 && day !== 12) ? 'nd' :
-                           (day % 10 === 3 && day !== 13) ? 'rd' : 'th';
-            document.getElementById("currentDateDisplay").innerText = `${day}${suffix} ${monthNames[monthIdx]} ${year}`;
-            
-            // Explicit hardcoded lookup logic for absolute compatibility across devices
-            let hijriDay = day;
-            let hijriMonth = "";
-            let hijriYear = 1448;
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const monthIdx = currentDate.getMonth(); // 0-11
+    const day = currentDate.getDate();
+    
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const suffix = (day % 10 === 1 && day !== 11) ? 'st' :
+                   (day % 10 === 2 && day !== 12) ? 'nd' :
+                   (day % 10 === 3 && day !== 13) ? 'rd' : 'th';
+    document.getElementById("currentDateDisplay").innerText = `${day}${suffix} ${monthNames[monthIdx]} ${year}`;
+    
+    let hijriDay = day;
+    let hijriMonth = "";
+    let hijriYear = 1448;
 
-            if (monthIdx === 6) { // July
-                // July 16, 2026 is Safar 1st, 1448 AH
-                if (day >= 16) {
-                    hijriDay = day - 15;
-                    hijriMonth = "Safar";
-                } else {
-                    // Before July 16th is Muharram
-                    hijriDay = day + 15; 
-                    hijriMonth = "Muharram";
-                }
-            } else if (monthIdx === 7) { // August
-                // August 14, 2026 is Rabi' al-Awwal 1st, 1448 AH
-                if (day >= 14) {
-                    hijriDay = day - 13;
-                    hijriMonth = "Rabi' al-Awwal";
-                } else {
-                    // Before August 14th is Safar
-                    hijriDay = day + 16;
-                    hijriMonth = "Safar";
-                }
-            } else {
-                // Fallback catch safely parsing structural defaults for other months if tested
-                hijriMonth = "Safar";
-            }
-
-            document.getElementById("hijriDateDisplay").innerText = `${hijriDay} ${hijriMonth} ${hijriYear} AH`;
+    if (monthIdx === 6) { // July
+        // July 17th maps directly to 2nd of Safar 1448
+        if (day >= 16) {
+            hijriDay = day - 15; // 17 - 15 = 2nd of Safar
+            hijriMonth = "Safar";
+        } else {
+            hijriDay = day + 15; 
+            hijriMonth = "Muharram";
         }
+    } else if (monthIdx === 7) { // August
+        if (day >= 14) {
+            hijriDay = day - 13;
+            hijriMonth = "Rabi' al-Awwal";
+        } else {
+            hijriDay = day + 16;
+            hijriMonth = "Safar";
+        }
+    } else {
+        hijriMonth = "Safar";
+    }
+
+    document.getElementById("hijriDateDisplay").innerText = `${hijriDay} ${hijriMonth} ${hijriYear} AH`;
+}
 
         function initialize() {
             displayCurrentDate();
