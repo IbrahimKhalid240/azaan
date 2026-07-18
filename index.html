@@ -342,11 +342,22 @@
                 }
             }
 
-            for(let i = 0; i < prayersList.length; i++) {
-                if (i !== upcomingPrayerIdx) {
-                    document.getElementById(`${prayersList[i]}Timer`).innerText = "Passed";
-                }
+           for (let i = 0; i < prayersList.length; i++) {
+    if (i !== upcomingPrayerIdx) {
+        // If the prayer's index is less than the upcoming one, it already happened today.
+        // If it's greater, it is still to come later today.
+        if (isTomorrowPrayer) {
+            // If the next prayer is tomorrow's Fajr, everything else today has passed
+            document.getElementById(`${prayersList[i]}Timer`).innerText = "Passed";
+        } else {
+            if (i < upcomingPrayerIdx) {
+                document.getElementById(`${prayersList[i]}Timer`).innerText = "Passed";
+            } else {
+                document.getElementById(`${prayersList[i]}Timer`).innerText = "Upcoming";
             }
+        }
+    }
+}
 
             const currentPrayerKey = prayersList[currentPrayerIdx];
             const startStr = schedule[currentPrayerKey];
