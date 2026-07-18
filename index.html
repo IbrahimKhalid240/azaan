@@ -274,76 +274,105 @@
         }
 
         function updateCountdownsAndHighlights(schedule, now, currentMinutesStr) {
-            let nextPrayerFound = false;
+            let upcomingPrayerIdx = -1;
             let currentPrayerIdx = -1;
+            let isTomorrowPrayer = false;
 
+            // Clear states
             prayersList.forEach(p => {
                 document.getElementById(`${p}ProgressParent`).classList.add("d-none");
+                document.getElementById(`${p}Box`).classList.remove("upcoming-highlight");
             });
 
+            // Find upcoming prayer context
             for (let i = 0; i < prayersList.length; i++) {
                 const prayer = prayersList[i];
-                const pBox = document.getElementById(`${prayer}Box`);
-                const pTimer = document.getElementById(`${prayer}Timer`);
-                
                 const prayerTimeStr = schedule[prayer];
                 const prayerDateTime = new Date(now.toDateString() + ' ' + prayerTimeStr);
-
-                pBox.classList.remove("upcoming-highlight");
                 const timeDiff = prayerDateTime - now;
 
+                // Fire alert window precisely on the target minute
                 const standardizedPrayerStr = prayerDateTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 if (currentMinutesStr === standardizedPrayerStr) {
                     if (!triggeredPrayersThisMinute[prayer]) {
                         triggeredPrayersThisMinute[prayer] = true;
                         triggerVisualAlert(prayer);
                     }
-                }
-
-                if (timeDiff > 0) {
-                    const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);
-                    const minutes = Math.floor((timeDiff / (1000 * 60)) % 60);
-                    const seconds = Math.floor((timeDiff / 1000) % 60);
-                    
-                    pTimer.innerText = `In ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
-                    if (!nextPrayerFound) {
-                        pBox.classList.add("upcoming-highlight");
-                        nextPrayerFound = true;
-                        currentPrayerIdx = i - 1; 
-                    }
                 } else {
-                    pTimer.innerText = "Passed";
                     if (timeDiff < -60000 && triggeredPrayersThisMinute[prayer]) {
                         delete triggeredPrayersThisMinute[prayer];
                     }
                 }
-            }
 
-            if (!nextPrayerFound) {
-                document.getElementById("fajrBox").classList.add("upcoming-highlight");
-                document.getElementById("fajrTimer").innerText = "Next: Tomorrow Fajr";
-                currentPrayerIdx = 4; 
-            }
-
-            // Progress Bar Engine
-            if (currentPrayerIdx >= 0) {
-                const activePrayer = prayersList[currentPrayerIdx];
-                const targetPrayer = prayersList[(currentPrayerIdx + 1) % prayersList.length];
-
-                const start = new Date(now.toDateString() + ' ' + schedule[activePrayer]);
-                let end = new Date(now.toDateString() + ' ' + schedule[targetPrayer]);
-                
-                if (targetPrayer === 'fajr' && now.getHours() >= 12) {
-                    end.setDate(end.getDate() + 1);
+                if (timeDiff > 0 && upcomingPrayerIdx === -1) {
+                    upcomingPrayerIdx = i;
+                    currentPrayerIdx = i - 1;
                 }
+            }
 
-                const totalDuration = end - start;
-                const timePassed = now - start;
-                const percentage = Math.min(100, Math.max(0, (timePassed / totalDuration) * 100));
+            // Midnight rollover handling (Period after Isha up until tomorrow's Fajr)
+            if (upcomingPrayerIdx === -1) {
+                upcomingPrayerIdx = 0; 
+                currentPrayerIdx = 4;  
+                isTomorrowPrayer = true;
+            }
 
-                document.getElementById(`${activePrayer}ProgressParent`).classList.remove("d-none");
-                document.getElementById(`${activePrayer}Progress`).style.width = `${percentage}%`;
+            const upcomingPrayerKey = prayersList[upcomingPrayerIdx];
+            const upcomingBox = document.getElementById(`${upcomingPrayerKey}Box`);
+            const upcomingTimer = document.getElementById(`${upcomingPrayerKey}Timer`);
+            
+            upcomingBox.classList.add("upcoming-highlight");
+
+            const upcomingTimeStr = schedule[upcomingPrayerKey];
+            let upcomingDateTime = new Date(now.toDateString() + ' ' + upcomingTimeStr);
+            if (isTomorrowPrayer || (upcomingPrayerIdx === 0 && now.getHours() >= 12)) {
+                upcomingDateTime.setDate(upcomingDateTime.getDate() + 1);
+                isTomorrowPrayer = true;
+            }
+
+            const totalDiff = upcomingDateTime - now;
+            const fiveMinutesInMs = 5 * 60 * 1000;
+
+            // Check if upcoming prayer is less than or equal to 5 minutes away
+            if (totalDiff <= fiveMinutesInMs && totalDiff > 0) {
+                const hours = Math.floor((totalDiff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((totalDiff / (1000 * 60)) % 60);
+                const seconds = Math.floor((totalDiff / 1000) % 60);
+                upcomingTimer.innerText = `In ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            } else {
+                // Default labels depending on timeline context rules
+                if (isTomorrowPrayer) {
+                    upcomingTimer.innerText = "Next: Tomorrow Fajr";
+                } else {
+                    upcomingTimer.innerText = "Next Prayer";
+                }
+            }
+
+            // Mark older items as clean passed
+            for(let i = 0; i < prayersList.length; i++) {
+                if (i !== upcomingPrayerIdx) {
+                    document.getElementById(`${prayersList[i]}Timer`).innerText = "Passed";
+                }
+            }
+
+            // Build out progress updates to match the newly focused upcoming slot card
+            const currentPrayerKey = prayersList[currentPrayerIdx];
+            const startStr = schedule[currentPrayerKey];
+            let startDateTime = new Date(now.toDateString() + ' ' + startStr);
+            if (currentPrayerIdx === 4 && now.getHours() < 12) {
+                startDateTime.setDate(startDateTime.getDate() - 1);
+            }
+
+            const totalWindowDuration = upcomingDateTime - startDateTime;
+            const elapsedWindowTime = now - startDateTime;
+            const percentage = Math.min(100, Math.max(0, (elapsedWindowTime / totalWindowDuration) * 100));
+
+            const progressParent = document.getElementById(`${upcomingPrayerKey}ProgressParent`);
+            const progressBar = document.getElementById(`${upcomingPrayerKey}Progress`);
+            
+            if (progressParent && progressBar) {
+                progressParent.classList.remove("d-none");
+                progressBar.style.width = `${percentage}%`;
             }
         }
 
@@ -366,7 +395,7 @@
             document.getElementById("currentDateDisplay").innerText = `${day}${suffix} ${monthNames[currentDate.getMonth()]} ${year}`;
             
             const hijriOption = { day: 'numeric', month: 'long', year: 'numeric' };
-            const hijriDate = new Intl.DateTimeFormat('en-TN-u-ca-islamic', hijriOption).format(currentDate);
+            const hijriDate = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', hijriOption).format(currentDate);
             document.getElementById("hijriDateDisplay").innerText = hijriDate;
         }
 
