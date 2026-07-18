@@ -22,62 +22,89 @@
             font-family: Arial, sans-serif;
             text-align: center;
             margin-top: 20px;
-            background-color: #f8f9fa;
+            background-color: #ffffff;
+            color: #212529;
+            min-height: 100vh;
         }
+
+        h1, h2 {
+            color: #212529;
+        }
+
         .prayer-time-box {
             margin: 10px;
             padding: 25px 20px;
-            border: 1px solid #ddd;
+            border: 1px solid #dee2e6;
             border-radius: 12px;
             display: inline-block;
             min-width: 140px;
             text-align: center;
-            background-color: white;
+            background-color: #ffffff;
             transition: all 0.5s ease;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
+
         .upcoming-highlight {
             border: 2px solid #28a745 !important;
             transform: scale(1.05);
-            box-shadow: 0 8px 15px rgba(40, 167, 69, 0.2);
+            box-shadow: 0 8px 15px rgba(40, 167, 69, 0.15);
             background-color: #f4fff6;
         }
+
         .date-clock-container {
             position: absolute;
             top: 20px;
             right: 20px;
             text-align: right;
         }
+
         .current-date {
             font-size: 16px;
             font-weight: bold;
             color: #495057;
         }
+
         .hijri-date {
             font-size: 14px;
             color: #6c757d;
             font-style: italic;
         }
+
         .live-clock {
             font-size: 24px;
             font-weight: bold;
             color: #212529;
             margin-top: 5px;
         }
+
         .scrollable-row {
             overflow-x: auto;
             white-space: nowrap;
             margin-top: 80px;
             padding: 15px 0;
         }
+
         .upcoming-timer {
             font-weight: bold;
             font-size: 15px;
             color: #6c757d;
             margin-top: 10px;
         }
+
         .upcoming-highlight .upcoming-timer {
             color: #28a745;
+        }
+
+        /* Progress Bar Styling */
+        .progress {
+            height: 6px;
+            margin-top: 15px;
+            border-radius: 10px;
+            background-color: rgba(0,0,0,0.08);
+        }
+        .progress-bar {
+            background-color: #28a745;
+            transition: width 1s linear;
         }
 
         /* Persistent Full Screen Visual Alert Overlay */
@@ -128,7 +155,7 @@
 </head>
 <body>
     <div id="visualAlertOverlay">
-        <div class="alert-title">🕌 حی علی الصلاة</div>
+        <div class="alert-title"> 🕌 حی علی الصلاة</div>
         <div class="alert-subtitle" id="alertPrayerName">It's Time to Pray!</div>
         <button class="btn btn-light btn-lg px-5 py-3 fw-bold text-success shadow-lg rounded-pill" onclick="dismissVisualAlert()">Dismiss / Clear Alert</button>
     </div>
@@ -149,31 +176,32 @@
                 <h2>Fajr الفجر</h2>
                 <p id="fajrTime">-</p>
                 <div class="upcoming-timer" id="fajrTimer">--:--:--</div>
+                <div class="progress d-none" id="fajrProgressParent"><div class="progress-bar" id="fajrProgress"></div></div>
             </div>
             <div id="dhuhrBox" class="col prayer-time-box">
                 <h2>Dhuhr الظهر</h2>
                 <p id="dhuhrTime">-</p>
                 <div class="upcoming-timer" id="dhuhrTimer">--:--:--</div>
+                <div class="progress d-none" id="dhuhrProgressParent"><div class="progress-bar" id="dhuhrProgress"></div></div>
             </div>
             <div id="asrBox" class="col prayer-time-box">
                 <h2>Asr العصر</h2>
                 <p id="asrTime">-</p>
                 <div class="upcoming-timer" id="asrTimer">--:--:--</div>
+                <div class="progress d-none" id="asrProgressParent"><div class="progress-bar" id="asrProgress"></div></div>
             </div>
             <div id="maghribBox" class="col prayer-time-box">
                 <h2>Maghrib المغرب</h2>
                 <p id="maghribTime">-</p>
                 <div class="upcoming-timer" id="maghribTimer">--:--:--</div>
+                <div class="progress d-none" id="maghribProgressParent"><div class="progress-bar" id="maghribProgress"></div></div>
             </div>
             <div id="ishaBox" class="col prayer-time-box">
                 <h2>Isha العشاء</h2>
                 <p id="ishaTime">-</p>
                 <div class="upcoming-timer" id="ishaTimer">--:--:--</div>
+                <div class="progress d-none" id="ishaProgressParent"><div class="progress-bar" id="ishaProgress"></div></div>
             </div>
-        </div>
-
-        <div class="mt-4">
-            <!-- <button class="btn btn-outline-success btn-sm px-4" onclick="triggerVisualAlert('Dhuhr')">Test Match Alert Template</button> -->
         </div>
     </div>
 
@@ -230,7 +258,6 @@
                 const now = new Date();
                 const currentMinutesStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 
-                // Update ticking clock display
                 document.getElementById("liveClockDisplay").innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
                 
                 const todayStr = getCurrentDate();
@@ -248,8 +275,14 @@
 
         function updateCountdownsAndHighlights(schedule, now, currentMinutesStr) {
             let nextPrayerFound = false;
+            let currentPrayerIdx = -1;
 
-            prayersList.forEach(prayer => {
+            prayersList.forEach(p => {
+                document.getElementById(`${p}ProgressParent`).classList.add("d-none");
+            });
+
+            for (let i = 0; i < prayersList.length; i++) {
+                const prayer = prayersList[i];
                 const pBox = document.getElementById(`${prayer}Box`);
                 const pTimer = document.getElementById(`${prayer}Timer`);
                 
@@ -259,7 +292,6 @@
                 pBox.classList.remove("upcoming-highlight");
                 const timeDiff = prayerDateTime - now;
 
-                // Automated Visual Alert Trigger check on the exact minute boundary match
                 const standardizedPrayerStr = prayerDateTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 if (currentMinutesStr === standardizedPrayerStr) {
                     if (!triggeredPrayersThisMinute[prayer]) {
@@ -278,19 +310,40 @@
                     if (!nextPrayerFound) {
                         pBox.classList.add("upcoming-highlight");
                         nextPrayerFound = true;
+                        currentPrayerIdx = i - 1; 
                     }
                 } else {
                     pTimer.innerText = "Passed";
-                    // Reset day protection tracking lock safely once minute rolls completely away
                     if (timeDiff < -60000 && triggeredPrayersThisMinute[prayer]) {
                         delete triggeredPrayersThisMinute[prayer];
                     }
                 }
-            });
+            }
 
             if (!nextPrayerFound) {
                 document.getElementById("fajrBox").classList.add("upcoming-highlight");
                 document.getElementById("fajrTimer").innerText = "Next: Tomorrow Fajr";
+                currentPrayerIdx = 4; 
+            }
+
+            // Progress Bar Engine
+            if (currentPrayerIdx >= 0) {
+                const activePrayer = prayersList[currentPrayerIdx];
+                const targetPrayer = prayersList[(currentPrayerIdx + 1) % prayersList.length];
+
+                const start = new Date(now.toDateString() + ' ' + schedule[activePrayer]);
+                let end = new Date(now.toDateString() + ' ' + schedule[targetPrayer]);
+                
+                if (targetPrayer === 'fajr' && now.getHours() >= 12) {
+                    end.setDate(end.getDate() + 1);
+                }
+
+                const totalDuration = end - start;
+                const timePassed = now - start;
+                const percentage = Math.min(100, Math.max(0, (timePassed / totalDuration) * 100));
+
+                document.getElementById(`${activePrayer}ProgressParent`).classList.remove("d-none");
+                document.getElementById(`${activePrayer}Progress`).style.width = `${percentage}%`;
             }
         }
 
@@ -324,7 +377,5 @@
 
         window.onload = initialize;
     </script>
-    <br>
-    <span class="comment">Made with <span class="color"><i class="fa-solid fa-heart"></i></span> from United States </span>
 </body>
 </html>
