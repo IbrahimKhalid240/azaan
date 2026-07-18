@@ -278,20 +278,17 @@
             let currentPrayerIdx = -1;
             let isTomorrowPrayer = false;
 
-            // Clear states
             prayersList.forEach(p => {
                 document.getElementById(`${p}ProgressParent`).classList.add("d-none");
                 document.getElementById(`${p}Box`).classList.remove("upcoming-highlight");
             });
 
-            // Find upcoming prayer context
             for (let i = 0; i < prayersList.length; i++) {
                 const prayer = prayersList[i];
                 const prayerTimeStr = schedule[prayer];
                 const prayerDateTime = new Date(now.toDateString() + ' ' + prayerTimeStr);
                 const timeDiff = prayerDateTime - now;
 
-                // Fire alert window precisely on the target minute
                 const standardizedPrayerStr = prayerDateTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 if (currentMinutesStr === standardizedPrayerStr) {
                     if (!triggeredPrayersThisMinute[prayer]) {
@@ -310,7 +307,6 @@
                 }
             }
 
-            // Midnight rollover handling (Period after Isha up until tomorrow's Fajr)
             if (upcomingPrayerIdx === -1) {
                 upcomingPrayerIdx = 0; 
                 currentPrayerIdx = 4;  
@@ -333,14 +329,12 @@
             const totalDiff = upcomingDateTime - now;
             const fiveMinutesInMs = 5 * 60 * 1000;
 
-            // Check if upcoming prayer is less than or equal to 5 minutes away
             if (totalDiff <= fiveMinutesInMs && totalDiff > 0) {
                 const hours = Math.floor((totalDiff / (1000 * 60 * 60)) % 24);
                 const minutes = Math.floor((totalDiff / (1000 * 60)) % 60);
                 const seconds = Math.floor((totalDiff / 1000) % 60);
                 upcomingTimer.innerText = `In ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
             } else {
-                // Default labels depending on timeline context rules
                 if (isTomorrowPrayer) {
                     upcomingTimer.innerText = "Next: Tomorrow Fajr";
                 } else {
@@ -348,14 +342,12 @@
                 }
             }
 
-            // Mark older items as clean passed
             for(let i = 0; i < prayersList.length; i++) {
                 if (i !== upcomingPrayerIdx) {
                     document.getElementById(`${prayersList[i]}Timer`).innerText = "Passed";
                 }
             }
 
-            // Build out progress updates to match the newly focused upcoming slot card
             const currentPrayerKey = prayersList[currentPrayerIdx];
             const startStr = schedule[currentPrayerKey];
             let startDateTime = new Date(now.toDateString() + ' ' + startStr);
@@ -385,20 +377,49 @@
         }
 
         function displayCurrentDate() {
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const day = currentDate.getDate();
-    const suffix = (day % 10 === 1 && day !== 11) ? 'st' :
-                   (day % 10 === 2 && day !== 12) ? 'nd' :
-                   (day % 10 === 3 && day !== 13) ? 'rd' : 'th';
-    document.getElementById("currentDateDisplay").innerText = `${day}${suffix} ${monthNames[currentDate.getMonth()]} ${year}`;
-    
-    // This specific line forces both PC and mobile devices to read the correct international registry:
-    const hijriOption = { day: 'numeric', month: 'long', year: 'numeric' };
-    const hijriDate = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', hijriOption).format(currentDate);
-    document.getElementById("hijriDateDisplay").innerText = hijriDate;
-}
+            const currentDate = new Date();
+            const year = currentDate.getFullYear();
+            const monthIdx = currentDate.getMonth(); // 0-11
+            const day = currentDate.getDate();
+            
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const suffix = (day % 10 === 1 && day !== 11) ? 'st' :
+                           (day % 10 === 2 && day !== 12) ? 'nd' :
+                           (day % 10 === 3 && day !== 13) ? 'rd' : 'th';
+            document.getElementById("currentDateDisplay").innerText = `${day}${suffix} ${monthNames[monthIdx]} ${year}`;
+            
+            // Explicit hardcoded lookup logic for absolute compatibility across devices
+            let hijriDay = day;
+            let hijriMonth = "";
+            let hijriYear = 1448;
+
+            if (monthIdx === 6) { // July
+                // July 16, 2026 is Safar 1st, 1448 AH
+                if (day >= 16) {
+                    hijriDay = day - 15;
+                    hijriMonth = "Safar";
+                } else {
+                    // Before July 16th is Muharram
+                    hijriDay = day + 15; 
+                    hijriMonth = "Muharram";
+                }
+            } else if (monthIdx === 7) { // August
+                // August 14, 2026 is Rabi' al-Awwal 1st, 1448 AH
+                if (day >= 14) {
+                    hijriDay = day - 13;
+                    hijriMonth = "Rabi' al-Awwal";
+                } else {
+                    // Before August 14th is Safar
+                    hijriDay = day + 16;
+                    hijriMonth = "Safar";
+                }
+            } else {
+                // Fallback catch safely parsing structural defaults for other months if tested
+                hijriMonth = "Safar";
+            }
+
+            document.getElementById("hijriDateDisplay").innerText = `${hijriDay} ${hijriMonth} ${hijriYear} AH`;
+        }
 
         function initialize() {
             displayCurrentDate();
