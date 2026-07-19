@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.6.0/css/sharp-light.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adhaan Scheduler Persistent Visual Edition</title>
+    <title>Adhaan Scheduler Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -29,6 +29,37 @@
 
         h1, h2 {
             color: #212529;
+        }
+
+        /* Continuous Islamic Scrolling Ticker Styles */
+        .ticker-container {
+            margin: 15px 24px;
+            background-color: #1b5e20; /* Islamic Green Box */
+            color: #ffffff;
+            overflow: hidden;
+            white-space: nowrap;
+            border-radius: 6px;
+            padding: 10px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+        }
+
+        .ticker-text {
+            display: inline-block;
+            padding-left: 100%;
+            font-size: 16px;
+            font-weight: 500;
+            animation: ticker-loop 25s linear infinite;
+        }
+
+        @keyframes ticker-loop {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+            100% {
+                transform: translate3d(-100%, 0, 0);
+            }
         }
 
         .prayer-time-box {
@@ -80,7 +111,7 @@
         .scrollable-row {
             overflow-x: auto;
             white-space: nowrap;
-            margin-top: 80px;
+            margin-top: 50px;
             padding: 15px 0;
         }
 
@@ -140,17 +171,6 @@
             margin-bottom: 40px;
             font-weight: 300;
         }
-
-        .comment {
-            color: black;
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
-            margin-top: 60px;
-            display: inline-block;
-            font-size: 24px;
-        }
-        .color {
-            color: red;
-        }
     </style>
 </head>
 <body>
@@ -160,9 +180,10 @@
         <button class="btn btn-light btn-lg px-5 py-3 fw-bold text-success shadow-lg rounded-pill" onclick="dismissVisualAlert()">Dismiss / Clear Alert</button>
     </div>
 
-    <div class="text-start ms-4">
-        <h1>Adhaan Scheduler</h1>
+    <div class="text-start ms-4 pe-4">
+        <h1>Prayer Time وقت الصلاة</h1>
     </div>
+
     
     <div class="date-clock-container">
         <div class="current-date" id="currentDateDisplay"></div>
@@ -202,6 +223,12 @@
                 <div class="upcoming-timer" id="ishaTimer">--:--:--</div>
                 <div class="progress d-none" id="ishaProgressParent"><div class="progress-bar" id="ishaProgress"></div></div>
             </div>
+        </div>
+    </div>
+
+    <div class="ticker-container">
+        <div class="ticker-text">
+            ✨ SubhanAllahi wa bihamdihi, SubhanAllahil Adheem • 📖 "Indeed, prayer prohibits immorality and wrongdoing." (Quran 29:45) • 🕌 Focus on your Khushu' today • 📿 Alhamdullilah for the blessing of another day • ✨ Astaghfirullahal 'Adheem
         </div>
     </div>
 
@@ -342,22 +369,19 @@
                 }
             }
 
-           for (let i = 0; i < prayersList.length; i++) {
-    if (i !== upcomingPrayerIdx) {
-        // If the prayer's index is less than the upcoming one, it already happened today.
-        // If it's greater, it is still to come later today.
-        if (isTomorrowPrayer) {
-            // If the next prayer is tomorrow's Fajr, everything else today has passed
-            document.getElementById(`${prayersList[i]}Timer`).innerText = "Passed";
-        } else {
-            if (i < upcomingPrayerIdx) {
-                document.getElementById(`${prayersList[i]}Timer`).innerText = "Passed";
-            } else {
-                document.getElementById(`${prayersList[i]}Timer`).innerText = "Upcoming";
+            for (let i = 0; i < prayersList.length; i++) {
+                if (i !== upcomingPrayerIdx) {
+                    if (isTomorrowPrayer) {
+                        document.getElementById(`${prayersList[i]}Timer`).innerText = "Passed";
+                    } else {
+                        if (i < upcomingPrayerIdx) {
+                            document.getElementById(`${prayersList[i]}Timer`).innerText = "Passed";
+                        } else {
+                            document.getElementById(`${prayersList[i]}Timer`).innerText = "Upcoming";
+                        }
+                    }
+                }
             }
-        }
-    }
-}
 
             const currentPrayerKey = prayersList[currentPrayerIdx];
             const startStr = schedule[currentPrayerKey];
@@ -388,44 +412,43 @@
         }
 
         function displayCurrentDate() {
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const monthIdx = currentDate.getMonth(); // 0-11
-    const day = currentDate.getDate();
-    
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const suffix = (day % 10 === 1 && day !== 11) ? 'st' :
-                   (day % 10 === 2 && day !== 12) ? 'nd' :
-                   (day % 10 === 3 && day !== 13) ? 'rd' : 'th';
-    document.getElementById("currentDateDisplay").innerText = `${day}${suffix} ${monthNames[monthIdx]} ${year}`;
-    
-    let hijriDay = day;
-    let hijriMonth = "";
-    let hijriYear = 1448;
+            const currentDate = new Date();
+            const year = currentDate.getFullYear();
+            const monthIdx = currentDate.getMonth(); 
+            const day = currentDate.getDate();
+            
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const suffix = (day % 10 === 1 && day !== 11) ? 'st' :
+                           (day % 10 === 2 && day !== 12) ? 'nd' :
+                           (day % 10 === 3 && day !== 13) ? 'rd' : 'th';
+            document.getElementById("currentDateDisplay").innerText = `${day}${suffix} ${monthNames[monthIdx]} ${year}`;
+            
+            let hijriDay = day;
+            let hijriMonth = "";
+            let hijriYear = 1448;
 
-    if (monthIdx === 6) { // July
-        // July 17th maps directly to 2nd of Safar 1448
-        if (day >= 16) {
-            hijriDay = day - 15; // 17 - 15 = 2nd of Safar
-            hijriMonth = "Safar";
-        } else {
-            hijriDay = day + 15; 
-            hijriMonth = "Muharram";
-        }
-    } else if (monthIdx === 7) { // August
-        if (day >= 14) {
-            hijriDay = day - 13;
-            hijriMonth = "Rabi' al-Awwal";
-        } else {
-            hijriDay = day + 16;
-            hijriMonth = "Safar";
-        }
-    } else {
-        hijriMonth = "Safar";
-    }
+            if (monthIdx === 6) { 
+                if (day >= 16) {
+                    hijriDay = day - 15; 
+                    hijriMonth = "Safar";
+                } else {
+                    hijriDay = day + 15; 
+                    hijriMonth = "Muharram";
+                }
+            } else if (monthIdx === 7) { 
+                if (day >= 14) {
+                    hijriDay = day - 13;
+                    hijriMonth = "Rabi' al-Awwal";
+                } else {
+                    hijriDay = day + 16;
+                    hijriMonth = "Safar";
+                }
+            } else {
+                hijriMonth = "Safar";
+            }
 
-    document.getElementById("hijriDateDisplay").innerText = `${hijriDay} ${hijriMonth} ${hijriYear} AH`;
-}
+            document.getElementById("hijriDateDisplay").innerText = `${hijriDay} ${hijriMonth} ${hijriYear} AH`;
+        }
 
         function initialize() {
             displayCurrentDate();
